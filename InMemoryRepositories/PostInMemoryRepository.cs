@@ -5,45 +5,45 @@ namespace InMemoryRepositories;
 
 public class PostInMemoryRepository : IPostRepository
 {
-    private List<Post> posts = new List<Post>();
+    private List<Post> _posts = new List<Post>();
     public Task<Post> AddAsync(Post post)
     {
-        post.PostId = posts.Any()
-            ? posts.Max(p => p.PostId) + 1
+        post.PostId = _posts.Any()
+            ? _posts.Max(p => p.PostId) + 1
             : 1;
-        posts.Add(post);
+        _posts.Add(post);
         return Task.FromResult(post);
     }
     public Task UpdateAsync(Post post)
     {
-        Post? existingPost = posts.SingleOrDefault(p => p.PostId == post.PostId);
+        Post? existingPost = _posts.SingleOrDefault(p => p.PostId == post.PostId);
         if (existingPost is null)
         {
             throw new InvalidOperationException(
                 $"Post with ID '{post.PostId}' not found");
         }
 
-        posts.Remove(existingPost);
-        posts.Add(post);
+        _posts.Remove(existingPost);
+        _posts.Add(post);
 
         return Task.CompletedTask;
     }
     public Task DeleteAsync(int id)
     {
-        Post? postToRemove = posts.SingleOrDefault(p => p.PostId == id);
+        Post? postToRemove = _posts.SingleOrDefault(p => p.PostId == id);
         if (postToRemove is null)
         {
             throw new InvalidOperationException(
                 $"Post with ID '{id}' not found");
         }
 
-        posts.Remove(postToRemove);
+        _posts.Remove(postToRemove);
         return Task.CompletedTask;
     }
 
     public Task<Post> GetSingleAsync(int id)
     {
-        Post? postToReturn = posts.SingleOrDefault(p => p.PostId == id);
+        Post? postToReturn = _posts.SingleOrDefault(p => p.PostId == id);
         if (postToReturn is null)
         {
             throw new InvalidOperationException(
@@ -54,6 +54,6 @@ public class PostInMemoryRepository : IPostRepository
     } 
     public IQueryable<Post> GetMany()
     {
-        return posts.AsQueryable();
+        return _posts.AsQueryable();
     }
 }
