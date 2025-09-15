@@ -3,7 +3,7 @@ using RepositoryContracts;
 
 namespace InMemoryRepositories;
 
-public class UserInMemoryRepository
+public class UserInMemoryRepository : IUserRepository
 {
     
     private List<User> _users = [];
@@ -23,7 +23,6 @@ public class UserInMemoryRepository
             throw new InvalidOperationException(
                 $"Post with ID '{user.UserId}' not found");
         }
-
         _users.Remove(existingUser);
         _users.Add(user);
 
@@ -37,7 +36,6 @@ public class UserInMemoryRepository
             throw new InvalidOperationException(
                 $"Post with ID '{id}' not found");
         }
-
         _users.Remove(userToRemove);
         return Task.CompletedTask;
     }

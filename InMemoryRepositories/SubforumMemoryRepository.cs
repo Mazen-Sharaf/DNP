@@ -4,7 +4,7 @@ namespace InMemoryRepositories;
 
 public class SubforumMemoryRepository
 {
-    private List<Subforum> _subforums = new List<Subforum>();
+    private List<Subforum> _subforums = [];
     public Task<Subforum> AddAsync(Subforum subforum)
     {
         subforum.SubforumId = _subforums.Any()

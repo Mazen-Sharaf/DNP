@@ -1,6 +1,31 @@
-﻿namespace CLI.UI;
+﻿using System.Runtime.InteropServices;
+using CLI.UI.Views;
+using CLI.UI.Views.Users;
+using Entities;
+using RepositoryContracts;
 
-public class CliApp
+namespace CLI.UI
 {
-    
+    public class CLIApp
+    {
+        private IPostRepository _posts;
+        private IUserRepository _users;
+
+        private ViewHandler _viewHandler;
+
+        public CLIApp(IPostRepository posts, IUserRepository users)
+        {
+            _posts = posts;
+            _users = users;
+
+            _viewHandler = new ViewHandler(posts, users);
+        }
+
+        public Task StartAsync()
+        {
+            _viewHandler.GoToMainView();
+
+            return Task.CompletedTask;
+        }
+    }
 }

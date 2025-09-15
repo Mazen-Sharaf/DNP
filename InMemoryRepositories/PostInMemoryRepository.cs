@@ -3,9 +3,9 @@ using RepositoryContracts;
 
 namespace InMemoryRepositories; 
 
-public class PostInMemoryRepository : IPostRepository
+public class PostInMemoryRepository: IPostRepository
 {
-    private List<Post> _posts = new List<Post>();
+    private List<Post> _posts =[];
     public Task<Post> AddAsync(Post post)
     {
         post.PostId = _posts.Any()
@@ -38,6 +38,26 @@ public class PostInMemoryRepository : IPostRepository
         }
 
         _posts.Remove(postToRemove);
+        return Task.CompletedTask;
+    }
+
+    public Task DeletAllFromSubforumAsync(int subforumId)
+    {
+        foreach (var post in _posts)
+        {
+            if (post.PostId == subforumId) DeleteAsync(post.PostId);
+        }
+        
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteAllFromUserAsync(int userId)
+    {
+        foreach (var post in _posts)
+        {
+            if (post.AuthorId == userId) DeleteAsync(post.PostId);
+        }
+        
         return Task.CompletedTask;
     }
 
