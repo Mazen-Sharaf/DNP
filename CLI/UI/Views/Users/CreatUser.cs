@@ -42,6 +42,7 @@ public class CreateUser(ViewHandler viewHandler, IUserRepository userRepository)
                     Console.WriteLine($"User {username} added");
                     break;
             }
+            viewHandler.GoToView(Views.MainView);
         }
         catch (Exception e)
         {
