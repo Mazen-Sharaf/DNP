@@ -47,17 +47,7 @@ public class MainView : IView
             case "5":
                 _viewHandler.GoToView(Views.DeleteSubforum);
                 break;
-            /*
-            case "5":
-                _viewHandler.GoToView(Views.ManageSubforum);
-                break;
-            case "6":
-                _viewHandler.GoToView(Views.DeleteSubforum);
-                break;
-            case "7":
-                _viewHandler.GoToView(Views.ListSubforums);
-                break;
-                */
+
             default:
                 _viewHandler.GoToMainView();
                 break;
