@@ -19,6 +19,7 @@ public class ViewHandler
     private ListUser _listUserView;
 
     private CreateSubforum _createSubforumView;
+    private DeleteSubforum _deleteSubforumsView;
 
     private PostView _postView;
 
@@ -38,6 +39,7 @@ public class ViewHandler
         _listUserView = new ListUser(this, _users);
         
         _createSubforumView = new CreateSubforum(this, _subforums, _users);
+        _deleteSubforumsView = new DeleteSubforum(this, _subforums, _posts);
 
         _postView = new PostView(this, _subforums, _posts, _users);
     }
@@ -61,6 +63,9 @@ public class ViewHandler
                 break;
             case Views.CreateSubforum:
                 view = _createSubforumView;
+                break;
+            case Views.DeleteSubforum:
+                view = _deleteSubforumsView;
                 break;
             default:
                 view = _mainView;
@@ -99,6 +104,7 @@ public enum Views
     DeleteUser,
     ListUsers,
     CreateSubforum,
+    DeleteSubforum,
     PostView,
 }
 

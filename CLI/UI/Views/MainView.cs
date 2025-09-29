@@ -21,10 +21,10 @@ public class MainView : IView
         Console.WriteLine(" 3 -List Users");
         Console.WriteLine("");
         Console.WriteLine(" 4 -Create subforum");
+        Console.WriteLine(" 5 -Delete Subforum");
         /*
         Console.WriteLine("  -List subforum");
         Console.WriteLine("  -Manage subforum");
-        Console.WriteLine("  -Delete subforum");
         */
     }
 
@@ -43,6 +43,9 @@ public class MainView : IView
                 break;
             case "4":
                 _viewHandler.GoToView(Views.CreateSubforum);
+                break;
+            case "5":
+                _viewHandler.GoToView(Views.DeleteSubforum);
                 break;
             /*
             case "5":

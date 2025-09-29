@@ -41,7 +41,7 @@ public class PostInMemoryRepository: IPostRepository
         return Task.CompletedTask;
     }
 
-    public Task DeletAllFromSubforumAsync(int subforumId)
+    public Task DeleteAllFromSubforumAsync(int subforumId)
     {
         foreach (var post in _posts)
         {
