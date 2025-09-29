@@ -20,11 +20,11 @@ public class MainView : IView
         Console.WriteLine(" 2 -Delete User");
         Console.WriteLine(" 3 -List Users");
         Console.WriteLine("");
+        Console.WriteLine(" 4 -List subforum");
         /*
-        Console.WriteLine(" 4 -Create subforum");
-        Console.WriteLine(" 5 -Manage subforum");
-        Console.WriteLine(" 6 -Delete subforum");
-        Console.WriteLine(" 7 -List subforums");
+        Console.WriteLine("  -Create subforum");
+        Console.WriteLine("  -Manage subforum");
+        Console.WriteLine("  -Delete subforum");
         */
     }
 

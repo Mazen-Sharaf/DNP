@@ -1,4 +1,5 @@
-﻿using CLI.UI.Views.Users;
+﻿using CLI.UI.Views.Posts;
+using CLI.UI.Views.Users;
 using Entities;
 using RepositoryContracts;
 
@@ -15,9 +16,12 @@ public class ViewHandler
     private CreateUser _createUserView;
     private DeleteUser _deleteUserView;
     private ListUser _listUserView;
-
-
-    public ViewHandler(IPostRepository posts,
+    
+    private PostView _postView;
+    
+    public ViewState ViewState { get; } = new ViewState();
+    
+    public ViewHandler (IPostRepository posts,
         IUserRepository users)
     {
         _posts = posts;
@@ -28,6 +32,8 @@ public class ViewHandler
         _createUserView = new CreateUser(this, _users);
         _deleteUserView = new DeleteUser(this, _users, _posts);
         _listUserView = new ListUser(this, _users);
+
+        _postView = new PostView(this, _subforums, _posts, _users);
     }
 
     public void GoToView(Views viewName)
@@ -43,6 +49,9 @@ public class ViewHandler
                 break;
             case Views.ListUsers:
                 view = _listUserView;
+                break;
+            case Views.PostView:
+                view = _postView;
                 break;
             default:
                 view = _mainView;
@@ -80,6 +89,7 @@ public enum Views
     CreateUser,
     DeleteUser,
     ListUsers,
+    PostView
 }
 
 public class ViewState

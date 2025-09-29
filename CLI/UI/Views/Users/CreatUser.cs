@@ -5,8 +5,8 @@ namespace CLI.UI.Views.Users;
 
 public class CreateUser(ViewHandler viewHandler, IUserRepository userRepository) : IView
 {
-    private ViewHandler viewHandler = viewHandler;
-    private IUserRepository userRepository = userRepository;
+    private ViewHandler _viewHandler = viewHandler;
+    private IUserRepository _userRepository = userRepository;
 
     public void Display()
     {
@@ -19,7 +19,7 @@ public class CreateUser(ViewHandler viewHandler, IUserRepository userRepository)
     {
         try
         {
-            switch (input.ToLower())
+            switch (input)
             {
                 case "0":
                     viewHandler.GoToMainView();
