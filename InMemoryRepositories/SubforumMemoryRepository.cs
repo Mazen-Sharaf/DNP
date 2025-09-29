@@ -1,8 +1,9 @@
 ﻿using Entities;
+using RepositoryContracts;
 
 namespace InMemoryRepositories;
 
-public class SubforumMemoryRepository
+public class SubforumMemoryRepository : ISubforumRepository
 {
     private List<Subforum> _subforums = [];
     public Task<Subforum> AddAsync(Subforum subforum)

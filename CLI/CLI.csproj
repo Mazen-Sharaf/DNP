@@ -13,8 +13,4 @@
       <ProjectReference Include="..\RepositoryContracts\RepositoryContracts.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="UI\Views\Subforum\" />
-    </ItemGroup>
-
 </Project>

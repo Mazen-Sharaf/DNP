@@ -10,15 +10,18 @@ namespace CLI.UI
     {
         private IPostRepository _posts;
         private IUserRepository _users;
+        private ISubforumRepository _subforums;
 
         private ViewHandler _viewHandler;
 
-        public CLIApp(IPostRepository posts, IUserRepository users)
+        public CLIApp(IPostRepository posts, IUserRepository users, ISubforumRepository subforums)
         {
             _posts = posts;
             _users = users;
+            _subforums = subforums;
+            
 
-            _viewHandler = new ViewHandler(posts, users);
+            _viewHandler = new ViewHandler(posts, users, subforums);
         }
 
         public Task StartAsync()
