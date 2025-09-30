@@ -1,8 +1,7 @@
-﻿using Entities;
-using InMemoryRepositories;
-using RepositoryContracts;
+﻿using RepositoryContracts;
+using Entities;
 
-namespace CLI.UI.Views.Subforum;
+namespace CLI.UI.Views.Subforums;
 
 public class CreateSubforum(
     ViewHandler viewHandler,
@@ -39,9 +38,9 @@ public class CreateSubforum(
                     if (!_userRepository.GetMany().Any(u => u.UserId == moderatorId))
                         break;
 
-                    _subforumRepository.AddAsync(new Entities.Subforum()
+                    _subforumRepository.AddAsync(new Subforum()
                     {
-                        ModeratorId = moderatorId,
+                        ModeratedBy = moderatorId,
                         Name = name
                     });
                     break;

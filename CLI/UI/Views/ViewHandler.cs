@@ -1,5 +1,5 @@
 ﻿using CLI.UI.Views.Posts;
-using CLI.UI.Views.Subforum;
+using CLI.UI.Views.Subforums;
 using CLI.UI.Views.Users;
 using Entities;
 using RepositoryContracts;
@@ -110,6 +110,6 @@ public enum Views
 
 public class ViewState
 {
-    public Entities.Subforum? CurrentSubforum { get; set; }
+    public Subforum? CurrentSubforum { get; set; }
     public Post? CurrentPost { get; set; }
 }

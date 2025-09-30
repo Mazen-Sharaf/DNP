@@ -1,6 +1,6 @@
 ﻿using Entities;
 using RepositoryContracts;
-namespace CLI.UI.Views.Subforum;
+namespace CLI.UI.Views.Subforums;
 
 public class DeleteSubforum: IView
 {
