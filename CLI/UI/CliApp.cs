@@ -24,11 +24,9 @@ namespace CLI.UI
             _viewHandler = new ViewHandler(posts, users, subforums);
         }
 
-        public Task StartAsync()
-        {
-            _viewHandler.GoToMainView();
-
-            return Task.CompletedTask;
+        public async Task StartAsync()
+        { 
+            _viewHandler.GoToView(Views.Views.MainView);
         }
     }
 }
