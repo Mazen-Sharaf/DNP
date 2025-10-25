@@ -1,5 +1,7 @@
 ﻿namespace RepositoryContracts;
+
 using Entities;
+
 public interface ISubforumRepository
 {
     Task<Subforum> AddAsync(Subforum subforum);

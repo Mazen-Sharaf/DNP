@@ -4,29 +4,29 @@ using CLI.UI.Views.Users;
 using Entities;
 using RepositoryContracts;
 
-namespace CLI.UI
+namespace CLI.UI;
+
+public class CLIApp
 {
-    public class CLIApp
+    private IPostRepository _posts;
+    private IUserRepository _users;
+    private ISubforumRepository _subforums;
+    private IReactionRepository _reactions;
+
+    private ViewHandler handler;
+
+    public CLIApp(IPostRepository posts, IUserRepository users, ISubforumRepository subforums, IReactionRepository reactions)
     {
-        private IPostRepository _posts;
-        private IUserRepository _users;
-        private ISubforumRepository _subforums;
+        _posts = posts;
+        _users = users;
+        _subforums = subforums;
+        _reactions = reactions;
+        
+        handler = new ViewHandler(posts, users, subforums, reactions);
+    }
 
-        private ViewHandler _viewHandler;
-
-        public CLIApp(IPostRepository posts, IUserRepository users, ISubforumRepository subforums)
-        {
-            _posts = posts;
-            _users = users;
-            _subforums = subforums;
-            
-
-            _viewHandler = new ViewHandler(posts, users, subforums);
-        }
-
-        public async Task StartAsync()
-        { 
-            _viewHandler.GoToView(Views.Views.MainView);
-        }
+    public async Task StartAsync()
+    {
+        await handler.GoToView(Views.Views.MainMenu);
     }
 }

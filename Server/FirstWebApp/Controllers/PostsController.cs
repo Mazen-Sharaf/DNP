@@ -10,10 +10,12 @@ namespace WebAPI.Controllers;
 public class PostsController : ControllerBase
 {
     private readonly IPostRepository _posts;
+    private readonly IReactionRepository _reactions;
 
-    public PostsController(IPostRepository posts)
+    public PostsController(IPostRepository posts, IReactionRepository reactions)
     {
         _posts = posts;
+        _reactions = reactions;
     }
     
     private Post DTOPostToEntity(PostDTO post)
@@ -89,4 +91,57 @@ public class PostsController : ControllerBase
         return Ok();
     }
 
+    [HttpPost("{id}/react")]
+    public async Task<ActionResult<PostDTO>> Like([FromRoute] int id, [FromBody] UserDTO user, [FromQuery] string type)
+    {
+        try
+        {
+            Post post = await _posts.GetSingleAsync(id); // thrower hvis opslaget ikke findes
+
+            await _reactions.AddAsync(new()
+            {
+                ByUserId = user.UserId,
+                PostId = post.PostId,
+                Type = type
+            });
+
+            return Ok();
+        }
+        catch (InvalidOperationException e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpDelete("{id}/react")]
+    public async Task<ActionResult<PostDTO>> Dislike([FromRoute] int id, [FromBody] UserDTO user, [FromQuery] string type)
+    {
+        try
+        {
+            Post post = await _posts.GetSingleAsync(id); // thrower hvis opslaget ikke findes
+            
+            var reaction = _reactions.GetMany()
+                .Where(r => r.PostId == post.PostId)
+                .Where(r => r.Type == type)
+                .FirstOrDefault(r => r.ByUserId == user.UserId);
+            
+            if (reaction == null) throw new InvalidOperationException("No matching reaction found");
+            
+            await _reactions.DeleteAsync(reaction);
+
+            return Ok();
+        }
+        catch (InvalidOperationException e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpGet("{id}/reactions")]
+    public async Task<ActionResult<List<ReactionDTO>>> GetReactions([FromRoute] int id)
+    {    
+        var reactions = _reactions.GetMany().Where(r => r.PostId == id);
+
+        return Ok(reactions);
+    }
 }

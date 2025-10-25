@@ -1,4 +1,4 @@
-﻿﻿using ApiContracts;
+﻿using ApiContracts;
 using Entities;
 using Microsoft.AspNetCore.Mvc;
 using RepositoryContracts;
@@ -39,10 +39,10 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserDTO>> AddUser([FromBody]UserDTO userDTO)
+    public async Task<ActionResult<UserDTO>> AddUser([FromBody] UserDTO userDTO)
     {
         User createdUser = await _userRepository.AddAsync(DTOUserToEntity(userDTO));
-        
+
         return Created($"/Users/{createdUser.UserId}", EntityUserToDTO(createdUser));
     }
 
@@ -50,9 +50,10 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<List<UserDTO>>> GetMany([FromQuery] string? username)
     {
         var users = _userRepository.GetMany();
-        
-        if (username != null) users = users.Where(u => u.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
-        
+
+        if (username != null)
+            users = users.Where(u => u.Username.Contains(username, StringComparison.OrdinalIgnoreCase));
+
         return Ok(users.ToList());
     }
 
@@ -66,7 +67,7 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<UserDTO>> Delete([FromRoute] int id)
     {
         await _postRepository.DeleteAllFromUserAsync(id);
-        
+
         await _userRepository.DeleteAsync(id);
 
         return Ok("User deleted");
@@ -76,7 +77,7 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<UserDTO>> Update([FromBody] UserDTO userDTO)
     {
         await _userRepository.UpdateAsync(DTOUserToEntity(userDTO));
-        
+
         return Ok("User updated");
     }
 }

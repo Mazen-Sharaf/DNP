@@ -5,55 +5,51 @@ namespace InMemoryRepositories;
 
 public class UserInMemoryRepository : IUserRepository
 {
-    
-    private List<User> _users = [];
+    private List<User> users = [];
+
     public Task<User> AddAsync(User user)
     {
-        user.UserId = _users.Any()
-            ? _users.Max(u => u.UserId) + 1
-            : 1;
-        _users.Add(user);
+        user.UserId = users.Count != 0 ? users.Max(u => u.UserId) + 1 : 1;
+        users.Add(user);
         return Task.FromResult(user);
     }
+
     public Task UpdateAsync(User user)
     {
-        User? existingUser = _users.SingleOrDefault(u => u.UserId == user.UserId);
-        if (existingUser is null)
-        {
-            throw new InvalidOperationException(
-                $"Post with ID '{user.UserId}' not found");
-        }
-        _users.Remove(existingUser);
-        _users.Add(user);
+        User? existingUser = users.SingleOrDefault(u => u.UserId == user.UserId);
+        if (existingUser is null) throw new InvalidOperationException($"User with ID '{user.UserId}' not found");
+
+        users.Remove(existingUser);
+        users.Add(user);
 
         return Task.CompletedTask;
     }
+
     public Task DeleteAsync(int id)
     {
-        User? userToRemove = _users.SingleOrDefault(u => u.UserId == id);
-        if (userToRemove is null)
-        {
-            throw new InvalidOperationException(
-                $"Post with ID '{id}' not found");
-        }
-        _users.Remove(userToRemove);
+        User? userToRemove = users.SingleOrDefault(u => u.UserId == id);
+        if (userToRemove is null) throw new InvalidOperationException($"User with ID '{id}' not found");
+
+        users.Remove(userToRemove);
+
         return Task.CompletedTask;
     }
 
     public Task<User> GetSingleAsync(int id)
     {
-        User? userToReturn = _users.SingleOrDefault(u => u.UserId == id);
-        if (userToReturn is null)
-        {
-            throw new InvalidOperationException(
-                $"Post with ID '{id}' not found");
-        }
+        User? user = users.SingleOrDefault(u => u.UserId == id);
+        if (user is null) throw new InvalidOperationException($"User with ID '{id}' not found");
 
-        return Task.FromResult(userToReturn);
-    } 
+        return Task.FromResult(user);
+    }
+
     public IQueryable<User> GetMany()
     {
-        return _users.AsQueryable();
+        return users.AsQueryable();
     }
-    
+
+    public Task<bool> VerifyCredentialsAsync(string username, string password)
+    {
+        throw new NotImplementedException("Not implemented in InMemoryRepository");
+    }
 }

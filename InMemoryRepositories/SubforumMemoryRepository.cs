@@ -3,57 +3,49 @@ using RepositoryContracts;
 
 namespace InMemoryRepositories;
 
-public class SubforumMemoryRepository : ISubforumRepository
+public class SubforumInMemoryContract : ISubforumRepository
 {
-    private List<Subforum> _subforums = [];
+    private List<Subforum> subforums = [];
+
     public Task<Subforum> AddAsync(Subforum subforum)
     {
-        subforum.SubforumId = _subforums.Any()
-            ? _subforums.Max(s => s.SubforumId) + 1
-            : 1;
-        _subforums.Add(subforum);
+        subforum.SubforumId = subforums.Count != 0 ? subforums.Max(sf => sf.SubforumId) + 1 : 1;
+        subforums.Add(subforum);
         return Task.FromResult(subforum);
     }
+
     public Task UpdateAsync(Subforum subforum)
     {
-        Subforum? existingSubforum = _subforums.SingleOrDefault(s => s.SubforumId == subforum.SubforumId);
+        Subforum? existingSubforum = subforums.SingleOrDefault(sf => sf.SubforumId == subforum.SubforumId);
         if (existingSubforum is null)
-        {
-            throw new InvalidOperationException(
-                $"Post with ID '{subforum.SubforumId}' not found");
-        }
+            throw new InvalidOperationException($"post with ID '{subforum.SubforumId}' not found");
 
-        _subforums.Remove(existingSubforum);
-        _subforums.Add(subforum);
+        subforums.Remove(existingSubforum);
+        subforums.Add(subforum);
 
         return Task.CompletedTask;
     }
+
     public Task DeleteAsync(int id)
     {
-        Subforum? subforumToRemove = _subforums.SingleOrDefault(s => s.SubforumId == id);
-        if (subforumToRemove is null)
-        {
-            throw new InvalidOperationException(
-                $"Post with ID '{id}' not found");
-        }
+        Subforum? subforumToRemove = subforums.SingleOrDefault(sf => sf.SubforumId == id);
+        if (subforumToRemove is null) throw new InvalidOperationException($"Post with ID '{id}' not found");
 
-        _subforums.Remove(subforumToRemove);
+        subforums.Remove(subforumToRemove);
+
         return Task.CompletedTask;
     }
 
     public Task<Subforum> GetSingleAsync(int id)
     {
-        Subforum? subforumToReturn = _subforums.SingleOrDefault(s => s.SubforumId == id);
-        if (subforumToReturn is null)
-        {
-            throw new InvalidOperationException(
-                $"Post with ID '{id}' not found");
-        }
+        Subforum? subforum = subforums.SingleOrDefault(sf => sf.SubforumId == id);
+        if (subforum is null) throw new InvalidOperationException($"Post with ID '{id}' not found");
 
-        return Task.FromResult(subforumToReturn);
-    } 
+        return Task.FromResult(subforum);
+    }
+
     public IQueryable<Subforum> GetMany()
     {
-        return _subforums.AsQueryable();
+        return subforums.AsQueryable();
     }
 }

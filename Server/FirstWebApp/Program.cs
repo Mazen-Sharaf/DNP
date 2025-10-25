@@ -1,4 +1,3 @@
-using fileRepositories;
 using FileRepositories;
 using RepositoryContracts;
 
@@ -13,7 +12,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<IPostRepository, PostFileRepository>();
 builder.Services.AddScoped<IUserRepository, UserFileRepository>();
 builder.Services.AddScoped<ISubforumRepository, SubforumFileRepository>();
-
+builder.Services.AddScoped<IReactionRepository, ReactionFileRepository>();
 
 var app = builder.Build();
 

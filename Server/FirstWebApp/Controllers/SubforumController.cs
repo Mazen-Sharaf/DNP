@@ -1,4 +1,4 @@
-﻿﻿using ApiContracts;
+﻿using ApiContracts;
 using Entities;
 using Microsoft.AspNetCore.Mvc;
 using RepositoryContracts;
@@ -23,7 +23,7 @@ public class SubforumsController : ControllerBase
         return new()
         {
             Name = subforum.Name,
-            ModeratorId = subforum.ModeratedBy,
+            ModeratorId = subforum.ModeratorId,
             SubforumId = subforum.SubforumId
         };
     }
@@ -33,7 +33,7 @@ public class SubforumsController : ControllerBase
         return new()
         {
             Name = subforumDTO.Name,
-            ModeratedBy = subforumDTO.ModeratorId,
+            ModeratorId = subforumDTO.ModeratorId,
             SubforumId = subforumDTO.SubforumId
         };
     }
@@ -45,21 +45,23 @@ public class SubforumsController : ControllerBase
         {
             var subforum = await _subforumRepository.GetSingleAsync(id);
             return Ok(ConvertEntityToDTO(subforum));
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             return BadRequest(e.Message);
         }
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<SubforumDTO>>> GetSubforumsAsync([FromQuery] string? name, [FromQuery] int? moderatedBy)
+    public async Task<ActionResult<List<SubforumDTO>>> GetSubforumsAsync([FromQuery] string? name,
+        [FromQuery] int? moderatedBy)
     {
         try
         {
             var result = _subforumRepository.GetMany();
-            
+
             if (name != null) result = result.Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
-            if (moderatedBy != null) result = result.Where(x => x.ModeratedBy == moderatedBy);
+            if (moderatedBy != null) result = result.Where(x => x.ModeratorId == moderatedBy);
 
             return Ok(result.ToList());
         }
@@ -75,9 +77,9 @@ public class SubforumsController : ControllerBase
         try
         {
             await _postRepository.DeleteAllFromSubforumAsync(id);
-            
+
             await _subforumRepository.DeleteAsync(id);
-            
+
             return Ok("Subforum deleted");
         }
         catch (Exception e)
@@ -92,7 +94,7 @@ public class SubforumsController : ControllerBase
         try
         {
             await _subforumRepository.AddAsync(ConvertDTOToEntity(subforum));
-            
+
             return Ok("Subforum created");
         }
         catch (Exception e)
@@ -107,7 +109,7 @@ public class SubforumsController : ControllerBase
         try
         {
             await _subforumRepository.UpdateAsync(ConvertDTOToEntity(subforum));
-            
+
             return Ok("Subforum updated");
         }
         catch (Exception e)

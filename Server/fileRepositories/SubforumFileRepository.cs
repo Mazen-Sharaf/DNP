@@ -28,54 +28,52 @@ public class SubforumFileRepository : ISubforumRepository
         string subforumsAsJson = JsonSerializer.Serialize(subforums);
         await File.WriteAllTextAsync(_filePath, subforumsAsJson);
     }
-
     public async Task<Subforum> AddAsync(Subforum subforum)
-    {
+    {  
         List<Subforum> subforums = await LoadListFromFileAsync();
-
+        
         subforum.SubforumId = subforums.Count != 0 ? subforums.Max(sf => sf.SubforumId) + 1 : 1;
         subforums.Add(subforum);
-
+        
         await UpdateFileAsync(subforums);
-
+        
         return subforum;
     }
 
     public async Task UpdateAsync(Subforum subforum)
     {
         List<Subforum> subforums = await LoadListFromFileAsync();
-
+        
         Subforum? existingSubforum = subforums.SingleOrDefault(sf => sf.SubforumId == subforum.SubforumId);
-        if (existingSubforum is null)
-            throw new InvalidOperationException($"post with ID '{subforum.SubforumId}' not found");
+        if (existingSubforum is null) throw new InvalidOperationException($"post with ID '{subforum.SubforumId}' not found");
 
         subforums.Remove(existingSubforum);
         subforums.Add(subforum);
-
+        
         await UpdateFileAsync(subforums);
     }
 
     public async Task DeleteAsync(int id)
     {
         List<Subforum> subforums = await LoadListFromFileAsync();
-
+        
         Subforum? subforumToRemove = subforums.SingleOrDefault(sf => sf.SubforumId == id);
-        if (subforumToRemove is null) throw new InvalidOperationException($"Post with ID '{id}' not found");
+        if (subforumToRemove is null) throw new InvalidOperationException ($"Post with ID '{id}' not found");
 
         subforums.Remove(subforumToRemove);
-
+        
         await UpdateFileAsync(subforums);
     }
 
     public async Task<Subforum> GetSingleAsync(int id)
     {
         List<Subforum> subforums = await LoadListFromFileAsync();
-
+        
         Subforum? subforum = subforums.SingleOrDefault(sf => sf.SubforumId == id);
         if (subforum is null) throw new InvalidOperationException($"Post with ID '{id}' not found");
-
+        
         await UpdateFileAsync(subforums);
-
+        
         return subforum;
     }
 
