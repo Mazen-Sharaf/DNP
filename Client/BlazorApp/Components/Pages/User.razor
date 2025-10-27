@@ -1,0 +1,51 @@
+﻿@page "/user/{UserId:int}"
+@using ApiContracts
+@using BlazorApp.Services
+@inject HttpUserService UserService
+@inject HttpPostService PostService
+
+<PageTitle>User</PageTitle>
+
+@if (_user == null)
+{
+    <h1>User does not exist</h1>
+}
+else
+{
+    <h1>@_user.Username</h1>
+    <h3>Posts af @_user.Username</h3>
+    if (_postsByUser != null) {
+        <ul>
+            @foreach (var post in _postsByUser)
+            {
+                if (post.Title != null)
+                {
+                    <li><a href="/Post/@post.PostId">@post.Title</a></li>
+                }
+                else
+                {
+                    <li><b>Kommentar:</b> <a href="/Post/@post.PostId">@post.Content</a></li>
+                }
+            }
+        </ul>
+    }
+    else
+    {
+        <p>Ingen opslag endnu</p>
+    }
+}
+
+@code {
+    [Parameter]
+    public int UserId { get; set; }
+    
+    private UserDTO? _user;
+    private List<PostDTO>? _postsByUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _user = await UserService.GetUserAsync(UserId);
+        _postsByUser = await PostService.GetAllPostsAsync(PostSearchFilter.SearchForAuthorId(_user.UserId));
+    }
+
+}

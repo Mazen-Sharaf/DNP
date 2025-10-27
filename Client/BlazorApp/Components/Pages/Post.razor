@@ -1,0 +1,78 @@
+﻿@page "/Post/{PostId:int}/"
+@using ApiContracts
+@using BlazorApp.Services
+@inject HttpPostService PostService
+@inject HttpUserService UserService
+
+
+@if (_post == null || _author == null)
+{
+    <h1>Loading...</h1>
+}
+else
+{
+    <div>
+        <h1>@_post.Title</h1>
+        <p>By: <a href="/user/@_author.UserId">@_author.Username</a></p>
+        <p>@_post.Content</p>
+    </div>
+    <div>
+        <h2>Skriv kommentar</h2>
+        <EditForm Model="@_createCommentDto" OnValidSubmit="@PostComment">
+            <label for="content">Kommentar:</label>
+            <InputTextArea id="content" @bind-Value="@_createCommentDto.content" />
+            <label for="author">Forfatter id:</label>
+            <InputNumber id="author" @bind-Value="@_createCommentDto.AuthorId" />
+            <button type="submit">Send kommentar</button>
+        </EditForm>
+    </div>
+    <h2>Kommentarer:</h2>
+    if (_comments != null)
+    {
+        foreach (var comment in _comments)
+        {
+            <p>
+                @comment.Content
+            </p>
+        }
+    }
+    else
+    {
+        <p>Ingen kommentarer endnu</p>
+    }
+}
+
+@code {
+    [Parameter] public int PostId { get; set; }
+
+    private PostDTO? _post;
+    private UserDTO? _author;
+    private List<PostDTO>? _comments;
+
+    private CreatePostDTO _createCommentDto = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _post = await PostService.GetPostByIdAsync(PostId);
+        _author = await UserService.GetUserAsync(_post.AuthorId);
+        _comments = await PostService.GetAllPostsAsync(PostSearchFilter.SearchForCommentedOnPostId(PostId));
+
+        _createCommentDto.CommentedOnPostId = PostId;
+        _createCommentDto.SubforumId = _post.SubforumId;
+    }
+
+    private async void PostComment()
+    {
+        if (String.IsNullOrWhiteSpace(_createCommentDto.content)) throw new Exception();
+        await PostService.AddPostAsync(_createCommentDto);
+        
+        _createCommentDto = new()
+        {
+            CommentedOnPostId = PostId,
+            SubforumId = _post!.SubforumId
+        };
+
+        await OnInitializedAsync();
+    }
+
+}
