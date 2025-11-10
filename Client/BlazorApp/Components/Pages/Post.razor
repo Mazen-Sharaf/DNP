@@ -1,53 +1,56 @@
 ﻿@page "/Post/{PostId:int}/"
+@using System.Numerics
 @using ApiContracts
 @using BlazorApp.Services
+@using BlazorApp.Components.Layout
+@attribute [Authorize]
 @inject HttpPostService PostService
 @inject HttpUserService UserService
+@inject HttpReactionService ReactionService
+@inject AuthenticationStateProvider AuthProvider
 
 
-@if (_post == null || _author == null)
-{
-    <h1>Loading...</h1>
-}
-else
-{
-    <div>
-        <h1>@_post.Title</h1>
-        <p>By: <a href="/user/@_author.UserId">@_author.Username</a></p>
-        <p>@_post.Content</p>
-    </div>
-    <div>
-        <h2>Skriv kommentar</h2>
-        <EditForm Model="@_createCommentDto" OnValidSubmit="@PostComment">
-            <label for="content">Kommentar:</label>
-            <InputTextArea id="content" @bind-Value="@_createCommentDto.content" />
-            <label for="author">Forfatter id:</label>
-            <InputNumber id="author" @bind-Value="@_createCommentDto.AuthorId" />
-            <button type="submit">Send kommentar</button>
-        </EditForm>
-    </div>
-    <h2>Kommentarer:</h2>
-    if (_comments != null)
-    {
-        foreach (var comment in _comments)
+<AuthorizeView>
+    <Authorized Context="authUser">
+        @if (_post == null || _author == null)
         {
-            <p>
-                @comment.Content
-            </p>
+            <h1>Loading...</h1>
         }
-    }
-    else
-    {
-        <p>Ingen kommentarer endnu</p>
-    }
-}
+        else
+        {
+            <div>
+                <h1>@_post.Title</h1>
+                <p>By: <a href="/user/@_author.UserId">@_author.Username</a></p>
+                <p>@_post.Content</p>
+                <div class="reactions">
+                    <p>
+                        Likes: @_reactions.FindAll(r => String.Equals(r.Type, "like", StringComparison.OrdinalIgnoreCase)).Count</p>
+                    <p>
+                        Dislikes: @_reactions.FindAll(r => String.Equals(r.Type, "dislike", StringComparison.OrdinalIgnoreCase)).Count</p>
+                    <button @onclick="Like">Like</button>
+                    <button @onclick="Dislike">Dislike</button>
+                </div>
+            </div>
+            <div>
+                <h2>Skriv kommentar</h2>
+                <EditForm Model="@_createCommentDto" OnValidSubmit="@PostComment">
+                    <label for="content">Kommentar:</label>
+                    <InputText id="content" @bind-Value="@_createCommentDto.content"/>
+                    <button type="submit">Send kommentar</button>
+                </EditForm>
+            </div>
+            <CommentSection Post="@_post"/>
+        }
+    </Authorized>
+</AuthorizeView>
 
 @code {
     [Parameter] public int PostId { get; set; }
 
     private PostDTO? _post;
     private UserDTO? _author;
-    private List<PostDTO>? _comments;
+
+    private List<ReactionDTO> _reactions;
 
     private CreatePostDTO _createCommentDto = new();
 
@@ -55,7 +58,7 @@ else
     {
         _post = await PostService.GetPostByIdAsync(PostId);
         _author = await UserService.GetUserAsync(_post.AuthorId);
-        _comments = await PostService.GetAllPostsAsync(PostSearchFilter.SearchForCommentedOnPostId(PostId));
+        _reactions = await ReactionService.GetAllReactionsOnPost(_post.PostId);
 
         _createCommentDto.CommentedOnPostId = PostId;
         _createCommentDto.SubforumId = _post.SubforumId;
@@ -64,8 +67,10 @@ else
     private async void PostComment()
     {
         if (String.IsNullOrWhiteSpace(_createCommentDto.content)) throw new Exception();
+
+        _createCommentDto.AuthorId = Int32.Parse((await AuthProvider.GetAuthenticationStateAsync()).User.FindFirst("id")!.Value);
         await PostService.AddPostAsync(_createCommentDto);
-        
+
         _createCommentDto = new()
         {
             CommentedOnPostId = PostId,
@@ -73,6 +78,53 @@ else
         };
 
         await OnInitializedAsync();
+    }
+
+    private async void Like()
+    {
+        int userId = Int32.Parse((await AuthProvider.GetAuthenticationStateAsync()).User.FindFirst("id")!.Value);
+
+        ReactionDTO reaction = new()
+        {
+            ByUserId = userId,
+            Type = "like",
+            PostId = _post!.PostId
+        };
+
+        if (HasReactedOnPost(userId, "like"))
+        {
+            await ReactionService.RemoveReactionFromPost(reaction);
+        }
+        else
+        {
+            await ReactionService.ReactOnPost(reaction);
+        }
+    }
+
+    private async void Dislike()
+    {
+        int userId = Int32.Parse((await AuthProvider.GetAuthenticationStateAsync()).User.FindFirst("id")!.Value);
+
+        ReactionDTO reaction = new()
+        {
+            ByUserId = userId,
+            Type = "dislike",
+            PostId = _post!.PostId
+        };
+
+        if (HasReactedOnPost(userId, "dislike"))
+        {
+            await ReactionService.RemoveReactionFromPost(reaction);
+        }
+        else
+        {
+            await ReactionService.ReactOnPost(reaction);
+        }
+    }
+
+    private bool HasReactedOnPost(int userid, string type)
+    {
+        return _reactions.FindAll(r => r.ByUserId == userid && String.Equals(r.Type, type, StringComparison.Ordinal)).Count > 0;
     }
 
 }

@@ -1,0 +1,18 @@
+﻿@page "/logout"
+@inject AuthenticationStateProvider AuthProvider
+
+<AuthorizeView>
+    <NotAuthorized>
+        <p>Du er nu logget ud</p>
+        <p>Tryk <a href="/login">her</a> for at logge ind</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        ((SimpleAuthProvider)AuthProvider).Logout();
+    }
+
+}

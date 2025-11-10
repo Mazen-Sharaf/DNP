@@ -22,7 +22,6 @@ public class UsersController : ControllerBase
     {
         return new()
         {
-            Password = user.Password,
             UserId = user.UserId,
             Username = user.Username
         };
@@ -32,7 +31,6 @@ public class UsersController : ControllerBase
     {
         return new()
         {
-            Password = user.Password,
             UserId = user.UserId,
             Username = user.Username
         };
@@ -60,7 +58,7 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDTO>> GetById([FromRoute] int id)
     {
-        return Ok(await _userRepository.GetSingleAsync(id));
+        return Ok(await _userRepository.GetSingleAsyncById(id));
     }
 
     [HttpDelete("{id}")]

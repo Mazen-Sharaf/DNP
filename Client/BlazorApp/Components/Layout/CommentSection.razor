@@ -1,0 +1,54 @@
+﻿@using ApiContracts
+@using BlazorApp.Services
+@inject HttpPostService PostService
+@inject HttpUserService UserService
+
+@code {
+    [Parameter] public PostDTO? Post { get; set; }
+
+    private List<PostDTO>? _commentsDtos;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadComments();
+    }
+
+    private async Task LoadComments()
+    {
+        try
+        {
+            if (Post != null)
+            {
+                _errorMessage = null;
+                _commentsDtos = await PostService.GetAllPostsAsync(PostSearchFilter.SearchForCommentedOnPostId(Post.PostId));
+            }
+        }
+        catch (Exception e)
+        {
+            _errorMessage = e.Message;
+        }
+    }
+
+}
+
+<h2>Kommentarfelt</h2>
+@if (Post != null && _commentsDtos != null && _errorMessage == null)
+{
+    if (_commentsDtos.Count > 0)
+    {
+        foreach (var commentDto in _commentsDtos)
+        {
+            <CommentComponent Comment="@commentDto"/>
+        }
+    }
+    else
+    {
+        <p>Ingen kommentare her endnu!</p>
+    }
+}
+else
+{
+    <p style="margin-bottom: 0;">Kunne ikke hente...</p>
+    <button style="margin-top: 0; margin-bottom: 10px" @onclick="LoadComments">Prøv igen</button>
+}

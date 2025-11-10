@@ -1,0 +1,83 @@
+﻿@page "/login"
+@using ApiContracts
+@using BlazorApp.Services
+@inject AuthenticationStateProvider AuthProvider
+@inject NavigationManager Nav
+@inject HttpUserService UserService
+
+<AuthorizeView>
+    <Authorized>
+        <h1>Du er logget ind @context.User.Identity!.Name</h1>
+        <h2>Gå til forsiden <a href="/">her</a></h2>
+    </Authorized>
+    <NotAuthorized Context="notAuthContext">
+        @if (!string.IsNullOrEmpty(_errorLabel))
+        {
+            <label style="color: red">
+                @_errorLabel
+            </label>
+        }
+        <div class="login">
+            <h3>Har du allerede en konto? Login her:</h3>
+            <EditForm Model="@_loginDto" OnValidSubmit="@LoginAsync">
+                <label for="usernameLogin">Username:</label>
+                <InputText id="usernameLogin" @bind-Value="@_loginDto.Username"/>
+                <label for="passwordLogin">Password:</label>
+                <InputText type="password" id="passwordLogin" @bind-Value="@_loginDto.Password"/>
+                <button type="submit">Log in</button>
+            </EditForm>
+        </div>
+
+        <div class="opret">
+            <h2>Opret bruger: </h2>
+            <EditForm Model="@_createDto" OnValidSubmit="@AddUserPostRequest">
+                <label for="usernameCreate">Username:</label>
+                <InputText id="usernameCreate" @bind-Value="@_createDto.Username"/>
+                <label for="passwordCreate">Password:</label>
+                <InputText type="password" id="passwordCreate" @bind-Value="@_createDto.Password"/>
+                <button type="submit">Opret bruger</button>
+            </EditForm>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@if (!string.IsNullOrEmpty(_errorLabel))
+{
+    <label style="color: red">
+        @_errorLabel
+    </label>
+}
+
+@code {
+    private CreateUserDTO _loginDto = new();
+    private string? _errorLabel;
+
+    private async Task LoginAsync()
+    {
+        _errorLabel = "";
+        try
+        {
+            await ((SimpleAuthProvider)AuthProvider).Login(_loginDto.Username, _loginDto.Password);
+            Nav.NavigateTo("/");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            _errorLabel = $"Error: {e.Message}";
+        }
+    }
+
+    private CreateUserDTO _createDto = new();
+
+    private async void AddUserPostRequest()
+    {
+        if (String.IsNullOrWhiteSpace(_createDto.Username) || String.IsNullOrWhiteSpace(_createDto.Password)) throw new Exception("Invalid username or password");
+        await UserService.AddUserAsync(_createDto);
+
+        _createDto = new();
+
+
+        await OnInitializedAsync();
+    }
+
+}

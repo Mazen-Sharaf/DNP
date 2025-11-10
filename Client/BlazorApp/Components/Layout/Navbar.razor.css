@@ -1,0 +1,18 @@
+.main {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    width: 100%;
+    background: orangered;
+    height: 100px;
+    padding: 40px;
+    box-sizing: border-box;
+
+    * {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+a, h2 {
+    color: white;
+}

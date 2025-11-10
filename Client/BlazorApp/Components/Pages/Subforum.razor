@@ -1,79 +1,9 @@
-﻿@page "/Subforum/{SubforumId:int}"
-@using ApiContracts
-@using BlazorApp.Services
-@inject HttpPostService PostService
-@inject HttpSubforumService SubforumService
+﻿@inherits LayoutComponentBase
 
-
-@if (_subforum == null)
-{
-    <h1>Loading...</h1>
-}
-else
-{
-    <h1>r/@_subforum.Name</h1>
-    <div class="opret-post-form">
-        <h2>Læg et opslag op!</h2>
-        <EditForm Model="@_createPostDto" OnValidSubmit="@CreatePost">
-            <label for="title">titel:</label>
-            <InputText id="title" @bind-Value="@_createPostDto.Title"/>
-            <label for="content">indhold:</label>
-            <InputTextArea id="content" @bind-Value="@_createPostDto.content"/>
-            <label for="author">forfatter id:</label>
-            <InputNumber id="author" @bind-Value="@_createPostDto.AuthorId"/>
-            <button type="submit">Læg op!</button>
-        </EditForm>
-    </div>
-    <h2>Opslag</h2>
-    if (_postsInForum!.Count > 0)
-    {
-        <ul>
-        @foreach(PostDTO post in _postsInForum)
-        {
-            if (post.Title != null)
-            {
-                <li><a href="/Post/@post.PostId">@post.Title</a></li>
-            }
-        }
-        </ul>
-    }
-    else
-    {
-        <p>Ingen opslag endnu</p>
-    }
-}
-
-@code {
-    [Parameter]
-    public int SubforumId { get; set; }
-    
-    private List<PostDTO>? _postsInForum;
-    private SubforumDTO? _subforum;
-
-    private CreatePostDTO _createPostDto = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _subforum = await SubforumService.GetSubforumAsync(SubforumId);
-        _postsInForum = await PostService.GetAllPostsAsync(PostSearchFilter.SearchForSubforumId(SubforumId));
-
-        _createPostDto.SubforumId = SubforumId;
-    }
-
-    private async void CreatePost()
-    {
-        if (String.IsNullOrWhiteSpace(_createPostDto.Title)) throw new Exception();
-        if (String.IsNullOrWhiteSpace(_createPostDto.content)) throw new Exception();
-        
-        await PostService.AddPostAsync(_createPostDto);
-
-        _createPostDto = new()
-        {
-            SubforumId = SubforumId
-        };
-        
-        
-        await OnInitializedAsync();
-    }
-
-}
+<AuthorizeView>
+    <Authorized>
+        <div class="main">
+            <h2><a href="/">Forside</a></h2>
+        </div>
+    </Authorized>
+</AuthorizeView>

@@ -31,7 +31,7 @@ public class OpenPostView(
         Console.WriteLine("");
         Console.WriteLine($"-- {viewHandler.ViewState.CurrentPost.Title} --");
         Console.WriteLine(
-            $"Author: {userRepository.GetSingleAsync(viewHandler.ViewState.CurrentPost.AuthorId).Result.Username}");
+            $"Author: {userRepository.GetSingleAsyncById(viewHandler.ViewState.CurrentPost.AuthorId).Result.Username}");
         Console.WriteLine("-");
         Console.WriteLine(viewHandler.ViewState.CurrentPost.Content);
         Console.WriteLine("-----------------------------");
@@ -51,7 +51,7 @@ public class OpenPostView(
         foreach (var comment in commentsOnCurrentPost)
         {
             Console.WriteLine(
-                $"    -- ID: {comment.PostId} | By: {userRepository.GetSingleAsync(comment.AuthorId).Result.Username}");
+                $"    -- ID: {comment.PostId} | By: {userRepository.GetSingleAsyncById(comment.AuthorId).Result.Username}");
             Console.WriteLine($"        {comment.Content}");
             Console.WriteLine("");
         }

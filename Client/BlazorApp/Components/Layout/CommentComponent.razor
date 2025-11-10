@@ -1,0 +1,55 @@
+﻿@using ApiContracts
+@using BlazorApp.Services
+@inject HttpPostService PostService
+@inject HttpUserService UserService
+
+@code {
+    [Parameter] public PostDTO? Comment { get; set; }
+
+    private UserDTO? _authorObject;
+    private List<PostDTO>? _childComments;
+
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadComment();
+    }
+
+    private async Task LoadComment()
+    {
+        if (Comment != null)
+        {
+            try
+            {
+                _errorMessage = null;
+                _authorObject = await UserService.GetUserAsync(Comment.AuthorId);
+                _childComments = await PostService.GetAllPostsAsync(PostSearchFilter.SearchForCommentedOnPostId(Comment.PostId));
+            }
+            catch (Exception e)
+            {
+                _errorMessage = e.Message;
+            }
+        }
+    }
+
+}
+
+@if (Comment != null && _authorObject != null && _childComments != null && _errorMessage == null)
+{
+    <div style="margin-bottom: 10px;">
+        <p class="fw-bold m-0">@_authorObject.Username</p>
+        <p>@Comment.Content</p>
+        <div style="border-left: gray 2px solid; margin-left: 10px; padding-left: 10px;">
+            @foreach (PostDTO childComment in _childComments)
+            {
+                <CommentComponent Comment="@childComment"/>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <p style="margin-bottom: 0;">Kunne ikke hente...</p>
+    <button style="margin-top: 0; margin-bottom: 10px" @onclick="LoadComment">Prøv igen</button>
+}

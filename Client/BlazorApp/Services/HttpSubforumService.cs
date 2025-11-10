@@ -29,7 +29,7 @@ public class HttpSubforumService : ISubforumService
     {
         SubforumDTO? res = await _httpClient.GetFromJsonAsync<SubforumDTO>($"Subforums/{id}");
 
-        if (res == null) throw new KeyNotFoundException();
+        if (res == null) throw new Exception("Subforum not found");
 
         return res;
     }

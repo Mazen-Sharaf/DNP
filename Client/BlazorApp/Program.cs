@@ -1,5 +1,7 @@
+using BlazorApp;
 using BlazorApp.Components;
 using BlazorApp.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,18 @@ builder.Services.AddScoped(sp => new HttpClient()
 builder.Services.AddScoped<HttpUserService>();
 builder.Services.AddScoped<HttpPostService>();
 builder.Services.AddScoped<HttpSubforumService>();
+builder.Services.AddScoped<HttpReactionService>();
+
+builder.Services.AddAuthentication("Cookies")
+    .AddCookie("Cookies", options =>
+    {
+        options.LoginPath = "/login";  // hvor brugeren sendes hen hvis ikke logget ind
+        options.LogoutPath = "/logout";
+    });
+
+builder.Services.AddAuthorizationCore();
+
+builder.Services.AddScoped<AuthenticationStateProvider, SimpleAuthProvider>();
 
 var app = builder.Build();
 

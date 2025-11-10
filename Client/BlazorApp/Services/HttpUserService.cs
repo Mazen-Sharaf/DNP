@@ -3,7 +3,7 @@ using ApiContracts;
 
 namespace BlazorApp.Services;
 
-public class HttpUserService :IUserService
+public class HttpUserService : IUserService
 {
     private readonly HttpClient _httpClient;
 
@@ -11,14 +11,14 @@ public class HttpUserService :IUserService
     {
         _httpClient = httpClient;
     }
-    
+
     public async Task<UserDTO> AddUserAsync(CreateUserDTO user)
     {
         HttpResponseMessage httpResponse = await _httpClient.PostAsJsonAsync("Users", user);
         string response = await httpResponse.Content.ReadAsStringAsync();
 
         if (!httpResponse.IsSuccessStatusCode) throw new Exception(response);
-        
+
         return JsonSerializer.Deserialize<UserDTO>(response, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
@@ -32,10 +32,16 @@ public class HttpUserService :IUserService
 
     public async Task<UserDTO> GetUserAsync(int id)
     {
-        UserDTO? res = await _httpClient.GetFromJsonAsync<UserDTO>($"Users/{id}");
-        
-        if (res == null) throw new KeyNotFoundException();
+        try
+        {
+            var res = await _httpClient.GetFromJsonAsync<UserDTO>($"Users/{id}");
+            if (res == null) throw new KeyNotFoundException();
 
-        return res;
+            return res;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
 }
