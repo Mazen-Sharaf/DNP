@@ -1,4 +1,5 @@
-﻿using ApiContracts;
+﻿using System.Diagnostics.CodeAnalysis;
+using ApiContracts;
 using Entities;
 using Microsoft.AspNetCore.Mvc;
 using RepositoryContracts;
@@ -9,13 +10,16 @@ namespace WebAPI.Controllers;
 [Route("[controller]")]
 public class SubforumsController : ControllerBase
 {
-    private readonly ISubforumRepository _subforumRepository;
+    private readonly ISubforumRepository _subforums;
     private readonly IPostRepository _postRepository;
+    private readonly IUserRepository _userRepository;
 
-    public SubforumsController(ISubforumRepository subforumRepository, IPostRepository postRepository)
+    public SubforumsController(ISubforumRepository subforums, IPostRepository postRepository,
+        IUserRepository userRepository)
     {
-        _subforumRepository = subforumRepository;
+        _subforums = subforums;
         _postRepository = postRepository;
+        _userRepository = userRepository;
     }
 
     private SubforumDTO ConvertEntityToDTO(Subforum subforum)
@@ -23,17 +27,17 @@ public class SubforumsController : ControllerBase
         return new()
         {
             Name = subforum.Name,
-            ModeratorId = subforum.ModeratorId,
+            ModeratorId = subforum.Moderator.UserId,
             SubforumId = subforum.SubforumId
         };
     }
 
-    private Subforum ConvertDTOToEntity(SubforumDTO subforumDTO)
+    private async Task<Subforum> ConvertDTOToEntity(SubforumDTO subforumDTO)
     {
         return new()
         {
             Name = subforumDTO.Name,
-            ModeratorId = subforumDTO.ModeratorId,
+            Moderator = await _userRepository.GetSingleAsyncById(subforumDTO.ModeratorId),
             SubforumId = subforumDTO.SubforumId
         };
     }
@@ -43,7 +47,7 @@ public class SubforumsController : ControllerBase
     {
         try
         {
-            var subforum = await _subforumRepository.GetSingleAsync(id);
+            var subforum = await _subforums.GetSingleAsync(id);
             return Ok(ConvertEntityToDTO(subforum));
         }
         catch (Exception e)
@@ -58,12 +62,23 @@ public class SubforumsController : ControllerBase
     {
         try
         {
-            var result = _subforumRepository.GetMany();
+            var result = _subforums.GetMany();
 
-            if (name != null) result = result.Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
-            if (moderatedBy != null) result = result.Where(x => x.ModeratorId == moderatedBy);
+            if (name != null) result = result.Where(x => x.Name.ToLower().Contains(name.ToLower()));
+            if (moderatedBy != null) result = result.Where(x => x.Moderator.UserId == moderatedBy);
 
-            return Ok(result.ToList());
+            var returnList = new List<SubforumDTO>();
+            foreach (var subforum in result.ToList())
+            {
+                returnList.Add(new()
+                {
+                    Name = subforum.Name,
+                    ModeratorId = subforum.Moderator.UserId,
+                    SubforumId = subforum.SubforumId
+                });
+            }
+
+            return Ok(returnList);
         }
         catch (Exception e)
         {
@@ -78,7 +93,7 @@ public class SubforumsController : ControllerBase
         {
             await _postRepository.DeleteAllFromSubforumAsync(id);
 
-            await _subforumRepository.DeleteAsync(id);
+            await _subforums.DeleteAsync(id);
 
             return Ok("Subforum deleted");
         }
@@ -93,7 +108,7 @@ public class SubforumsController : ControllerBase
     {
         try
         {
-            await _subforumRepository.AddAsync(ConvertDTOToEntity(subforum));
+            await _subforums.AddAsync(await ConvertDTOToEntity(subforum));
 
             return Ok("Subforum created");
         }
@@ -108,7 +123,7 @@ public class SubforumsController : ControllerBase
     {
         try
         {
-            await _subforumRepository.UpdateAsync(ConvertDTOToEntity(subforum));
+            await _subforums.UpdateAsync(await ConvertDTOToEntity(subforum));
 
             return Ok("Subforum updated");
         }

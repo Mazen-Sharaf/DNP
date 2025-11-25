@@ -2,7 +2,8 @@
 
 public class Reaction
 {
-    public int ByUserId { get; set; }
-    public int PostId { get; set; }
+    public User ByUser { get; set; }
+    public Post OnPost { get; set; }
     public string Type { get; set; }
+    public int ReactionId { get; set; }
 }
